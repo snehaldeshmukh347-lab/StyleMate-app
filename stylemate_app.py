@@ -4,6 +4,7 @@ import numpy as np
 import urllib.parse
 import os
 import warnings
+mp_pose = mp.solutions.pose
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 warnings.filterwarnings("ignore")
@@ -63,28 +64,35 @@ def detect_skin_tone_from_image(img_file):
     else:
         return "Deep"
 
-def detect_body_type_from_photo(img_file):
-    img = Image.open(img_file).convert("RGB")
-    arr = np.array(img)
+def detect_body_type_from_photo(img):
+    img = Image.open(img).convert("RGB")
+    img_np = np.array(img)
 
     with mp_pose.Pose(static_image_mode=True) as pose:
-        res = pose.process(arr)
+        results = pose.process(img_np)
 
-    if not res.pose_landmarks:
-        return None
+        if not results.pose_landmarks:
+            return "Average"
 
-    lm = res.pose_landmarks.landmark
-    sh = abs(lm[mp_pose.PoseLandmark.RIGHT_SHOULDER.value].x -
-             lm[mp_pose.PoseLandmark.LEFT_SHOULDER.value].x)
-    hp = abs(lm[mp_pose.PoseLandmark.RIGHT_HIP.value].x -
-             lm[mp_pose.PoseLandmark.LEFT_HIP.value].x)
+        landmarks = results.pose_landmarks.landmark
 
-    if hp > sh * 1.08:
-        return "pear"
-    elif sh > hp * 1.08:
-        return "inverted_triangle"
-    else:
-        return "rectangle"
+        shoulder_width = abs(
+            landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER].x -
+            landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER].x
+        )
+
+        hip_width = abs(
+            landmarks[mp_pose.PoseLandmark.LEFT_HIP].x -
+            landmarks[mp_pose.PoseLandmark.RIGHT_HIP].x
+        )
+
+        if shoulder_width > hip_width:
+            return "Inverted Triangle"
+        elif hip_width > shoulder_width:
+            return "Pear"
+        else:
+            return "Rectangle"
+
 
 def calculate_body_type(chest, waist, hips):
     if hips / waist > 1.15:
@@ -233,4 +241,5 @@ st.caption(
     "StyleMate is an academic prototype demonstrating rule-based AI "
     "fashion recommendation logic."
 )
+
 
