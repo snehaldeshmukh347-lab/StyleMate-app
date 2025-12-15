@@ -70,7 +70,7 @@ def pick_jeans_ai(gender, body_type, occasion):
             return ["Wide leg jeans", "Boyfriend jeans"]
         return ["Relaxed fit jeans", "Straight jeans"]
         if body_type == "Inverted triangle":
-            return "[Wide leg jeans", "Boyfriend jeans","Straight fit jeans", "Bootcut jeans"]
+            return ["Wide leg jeans", "Boyfriend jeans", "Straight fit jeans", "Bootcut jeans"]
             
     if gender == "Man":
         if body_type == "Athletic":
@@ -223,6 +223,7 @@ for label, key in items:
 
 st.markdown("---")
 st.caption("StyleMate – Rule-based AI Fashion Recommendation MVP")
+
 
 
 
