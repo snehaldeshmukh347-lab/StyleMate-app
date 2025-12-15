@@ -207,7 +207,7 @@ items.extend(get_tops(occasion, gender))
 # Jeans (2–3 max)
 jeans_list = pick_jeans_ai(gender, body_type, occasion)
 for j in jeans_list:
-    items.append(("AI-selected jeans", j))
+    items.append(("Jeans", j))
 
 # Footwear & accessories
 items.extend(get_footwear_and_accessories(occasion, age))
@@ -223,6 +223,7 @@ for label, key in items:
 
 st.markdown("---")
 st.caption("StyleMate – Rule-based AI Fashion Recommendation MVP")
+
 
 
 
