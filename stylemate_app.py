@@ -4,7 +4,7 @@ import numpy as np
 import urllib.parse
 import os
 import warnings
-mp_pose = mp.solutions.pose
+import mediapipe as mp
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 warnings.filterwarnings("ignore")
@@ -22,6 +22,7 @@ st.write(
     "**body type, gender, age, skin tone and occasion**."
 )
 
+mp_pose = mp.solutions.pose
 # ---------------- HELPER FUNCTIONS ----------------
 
 def encode_q(q: str) -> str:
@@ -241,5 +242,6 @@ st.caption(
     "StyleMate is an academic prototype demonstrating rule-based AI "
     "fashion recommendation logic."
 )
+
 
 
