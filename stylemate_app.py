@@ -15,8 +15,8 @@ st.set_page_config(
 
 st.title("👗 StyleMate – Your Premium AI Personal Stylist")
 st.write(
-    "Personalized outfit, footwear & accessory recommendations based on "
-    "**body type, gender, age, skin tone and occasion**."
+    "Personalized outfit, bottoms, footwear & accessories based on "
+    "**gender, age, body type, skin tone and occasion**."
 )
 
 # ---------------- HELPER FUNCTIONS ----------------
@@ -25,16 +25,8 @@ def encode_q(q: str) -> str:
     return urllib.parse.quote_plus(q)
 
 def get_shopping_links(keyword: str, gender: str):
-    g = gender.lower()
-    if g == "woman":
-        keyword = "women " + keyword
-    elif g == "man":
-        keyword = "men " + keyword
-    elif g == "kid":
-        keyword = "kids " + keyword
-
-    q = encode_q(keyword)
-
+    prefix = gender.lower()
+    q = encode_q(f"{prefix} {keyword}")
     return {
         "Amazon": f"https://www.amazon.in/s?k={q}",
         "Myntra": f"https://www.myntra.com/{q}",
@@ -46,10 +38,7 @@ def get_shopping_links(keyword: str, gender: str):
 def detect_skin_tone_from_image(img_file):
     img = Image.open(img_file).convert("RGB")
     arr = np.array(img)
-
-    h, w, _ = arr.shape
-    center = arr[int(h*0.25):int(h*0.75), int(w*0.25):int(w*0.75)]
-    r, g, b = center.mean(axis=(0, 1))
+    r, g, b = arr.mean(axis=(0, 1))
     brightness = (r + g + b) / 3
 
     if brightness > 200:
@@ -89,19 +78,16 @@ if age == "Newborn (0–1)":
     body_type = "Newborn"
     st.info("👶 Body type is skipped for newborns.")
 else:
-    mode = st.radio("Input method", ["Upload photo", "Manual"])
-
-    if mode == "Upload photo":
-        img = st.file_uploader("Upload full body image", ["jpg", "png", "jpeg"])
-        if img:
-            st.image(img, caption="Uploaded image", use_column_width=True)
-
-    body_type = st.selectbox(
-        "Select your body type",
-        ["Pear", "Apple", "Hourglass", "Rectangle", "Inverted Triangle"]
-    )
-
-    st.success(f"Selected body type: {body_type}")
+    if gender == "Woman":
+        body_type = st.selectbox(
+            "Select body type",
+            ["Pear", "Apple", "Hourglass", "Rectangle", "Inverted Triangle"]
+        )
+    else:
+        body_type = st.selectbox(
+            "Select body type",
+            ["Slim", "Athletic", "Average", "Stocky"]
+        )
 
 # ---------------- SKIN TONE ----------------
 
@@ -109,11 +95,7 @@ st.markdown("## 🎨 Skin Tone")
 skin_mode = st.radio("Skin tone input", ["Upload photo", "Manual select"])
 
 if skin_mode == "Upload photo":
-    skin_img = st.file_uploader(
-        "Upload face or hand image",
-        ["jpg", "png"],
-        key="skin"
-    )
+    skin_img = st.file_uploader("Upload face/hand image", ["jpg", "png"])
     if skin_img:
         skin_tone = detect_skin_tone_from_image(skin_img)
         st.success(f"Detected skin tone: {skin_tone}")
@@ -127,41 +109,84 @@ else:
 
 # ---------------- RECOMMENDATION LOGIC ----------------
 
-def get_outfit_ideas(occasion, age):
+def get_clothing(gender, occasion, age):
     if age == "Newborn (0–1)":
         return [("Cotton onesie", "newborn cotton onesie")]
 
-    if "Office" in occasion:
-        return [("Formal outfit", "formal wear")]
-    if "Traditional" in occasion:
-        return [("Ethnic wear", "ethnic wear")]
-    return [("Casual top / t-shirt", "casual top")]
+    if gender == "Woman":
+        if "Office" in occasion:
+            return [("Formal blouse", "formal blouse")]
+        if "Traditional" in occasion:
+            return [("Ethnic kurti / saree", "ethnic wear")]
+        return [("Casual top", "women casual top")]
 
-def get_extras(occasion, age):
+    if gender == "Man":
+        if "Office" in occasion:
+            return [("Formal shirt", "formal shirt")]
+        if "Traditional" in occasion:
+            return [("Kurta set", "men kurta")]
+        return [("Casual t-shirt", "men casual t-shirt")]
+
+    return [("Kids top", "kids top")]
+
+def get_bottoms(gender, occasion):
+    if gender == "Woman":
+        return [
+            ("Straight jeans", "straight jeans women"),
+            ("Wide-leg jeans", "wide leg jeans women"),
+            ("Bootcut jeans", "bootcut jeans women"),
+            ("High-waist trousers", "women trousers"),
+        ]
+
+    if gender == "Man":
+        return [
+            ("Slim-fit jeans", "men slim jeans"),
+            ("Regular trousers", "men trousers"),
+            ("Chinos", "men chinos"),
+        ]
+
+    return [("Kids bottoms", "kids bottoms")]
+
+def get_footwear_and_accessories(gender, occasion, age):
     if age == "Newborn (0–1)":
-        return [("Baby booties", "newborn socks")]
+        return [
+            ("Soft booties", "newborn booties"),
+            ("Cotton cap", "newborn cap"),
+        ]
+
+    items = []
 
     if "Office" in occasion:
-        return [("Formal shoes", "formal shoes")]
+        items += [("Formal shoes", "formal shoes")]
+    else:
+        items += [("Sneakers / heels", "fashion footwear")]
 
-    return [
-        ("Sneakers / heels", "fashion footwear"),
-        ("Sling bag", "fashion bag"),
+    items += [
+        ("Handbag / backpack", "fashion bag"),
+        ("Watch / jewellery", "fashion accessories"),
     ]
+
+    return items
 
 # ---------------- TOP PICK ----------------
 
-st.markdown("## ✨ StyleMate’s Top Pick for You")
+st.markdown("## ✨ StyleMate’s Top Picks For You")
 
-items = get_outfit_ideas(occasion, age) + get_extras(occasion, age)
+sections = {
+    "👚 Tops": get_clothing(gender, occasion, age),
+    "👖 Bottoms": get_bottoms(gender, occasion),
+    "👟 Footwear & Accessories": get_footwear_and_accessories(gender, occasion, age),
+}
 
-for label, key in items:
-    st.markdown(f"**• {label}**")
-    links = get_shopping_links(key, gender)
-    cols = st.columns(len(links))
-    for col, brand in zip(cols, links):
-        col.link_button(brand, links[brand])
+for section, items in sections.items():
+    st.subheader(section)
+    for label, key in items:
+        st.markdown(f"**• {label}**")
+        links = get_shopping_links(key, gender)
+        cols = st.columns(len(links))
+        for col, brand in zip(cols, links):
+            col.link_button(brand, links[brand])
 
 st.markdown("---")
-st.caption("StyleMate – Academic MVP prototype")
+st.caption("StyleMate – Academic MVP (Rule-based AI Styling Prototype)")
 
