@@ -63,28 +63,17 @@ def detect_skin_tone_from_image(img_file):
     else:
         return "Deep"
 
-if mode == "Upload photo":
-    img = st.file_uploader("Upload full body image", ["jpg", "png", "jpeg"])
-    if img:
-        st.image(img, caption="Uploaded image", use_column_width=True)
-        body_type = st.selectbox(
-            "Select your body type",
-            ["Pear", "Apple", "Hourglass", "Rectangle", "Inverted Triangle"]
-        )
-
-
-
 def calculate_body_type(chest, waist, hips):
     if hips / waist > 1.15:
-        return "pear"
+        return "Pear"
     elif chest / waist > 1.15:
-        return "inverted_triangle"
+        return "Inverted Triangle"
     elif abs(chest - hips) <= 5:
-        return "hourglass"
+        return "Hourglass"
     elif waist > (chest + hips) * 0.45:
-        return "apple"
+        return "Apple"
     else:
-        return "rectangle"
+        return "Rectangle"
 
 # ---------------- RECOMMENDATION LOGIC ----------------
 
@@ -120,6 +109,7 @@ def get_extras(occasion, age):
 
 st.markdown("## 🎯 Occasion")
 st.divider()
+
 occasion = st.selectbox(
     "Select occasion",
     [
@@ -132,6 +122,7 @@ occasion = st.selectbox(
 
 st.markdown("## 👤 User Profile")
 st.divider()
+
 gender = st.selectbox("Gender", ["Woman", "Man", "Kid"])
 age = st.selectbox(
     "Age group",
@@ -146,23 +137,30 @@ st.divider()
 body_type = None
 
 if age == "Newborn (0–1)":
-    body_type = "newborn"
+    body_type = "Newborn"
     st.info("👶 Body type is skipped for newborns.")
 else:
     mode = st.radio("Input method", ["Upload photo", "Manual"])
 
     if mode == "Upload photo":
-        img = st.file_uploader("Upload full body image", ["jpg", "png"])
+        img = st.file_uploader("Upload full body image", ["jpg", "png", "jpeg"])
+
         if img:
-            body_type = detect_body_type_from_photo(img)
-            if body_type:
-                st.success(f"Detected body type: {body_type}")
-            else:
-                st.warning("Could not detect body type clearly.")
+            st.image(img, caption="Uploaded image", use_column_width=True)
+
+            body_type = st.selectbox(
+                "Select your body type",
+                ["Pear", "Apple", "Hourglass", "Rectangle", "Inverted Triangle"]
+            )
+            st.success(f"Selected body type: {body_type}")
+        else:
+            st.warning("Please upload a full body image.")
+
     else:
         chest = st.number_input("Chest (cm)", 20, 150, 90)
         waist = st.number_input("Waist (cm)", 20, 150, 70)
         hips = st.number_input("Hips (cm)", 20, 160, 95)
+
         body_type = calculate_body_type(chest, waist, hips)
         st.success(f"Detected body type: {body_type}")
 
@@ -175,15 +173,11 @@ if body_type is None:
 st.markdown("## 🎨 Skin Tone")
 st.divider()
 
-skin_tone = None
 skin_mode = st.radio("Skin tone input", ["Upload photo", "Manual select"])
+skin_tone = None
 
 if skin_mode == "Upload photo":
-    skin_img = st.file_uploader(
-        "Upload face or hand image",
-        ["jpg", "png"],
-        key="skin"
-    )
+    skin_img = st.file_uploader("Upload face or hand image", ["jpg", "png"])
     if skin_img:
         skin_tone = detect_skin_tone_from_image(skin_img)
         st.success(f"Detected skin tone: {skin_tone}")
@@ -203,7 +197,7 @@ st.markdown("## ✨ StyleMate’s Top Pick for You")
 st.divider()
 
 st.info(
-    f"This recommendation is selected based on **{occasion.lower()}**, "
+    f"Selected based on **{occasion.lower()}**, "
     f"**{age.lower()}**, and **{skin_tone.lower()} skin tone**."
 )
 
@@ -218,10 +212,6 @@ for label, key in items:
 
 st.markdown("---")
 st.caption(
-    "StyleMate is an academic prototype demonstrating rule-based AI "
+    "StyleMate is an academic prototype demonstrating rule-based "
     "fashion recommendation logic."
 )
-
-
-
-
