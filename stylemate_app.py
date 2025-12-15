@@ -1,7 +1,6 @@
 import streamlit as st
 from PIL import Image
 import numpy as np
-import mediapipe as mp
 import urllib.parse
 import os
 import warnings
@@ -21,8 +20,6 @@ st.write(
     "Personalized outfit, footwear & accessory recommendations based on "
     "**body type, gender, age, skin tone and occasion**."
 )
-
-mp_pose = mp.solutions.pose
 
 # ---------------- HELPER FUNCTIONS ----------------
 
@@ -236,3 +233,4 @@ st.caption(
     "StyleMate is an academic prototype demonstrating rule-based AI "
     "fashion recommendation logic."
 )
+
