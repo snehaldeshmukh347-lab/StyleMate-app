@@ -1,3 +1,5 @@
-streamlit
-numpy
-Pillow
+streamlit==1.32.0
+mediapipe==0.10.9
+numpy==1.26.4
+Pillow==10.2.0
+protobuf==3.20.3
