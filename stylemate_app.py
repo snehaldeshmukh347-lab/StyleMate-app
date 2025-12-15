@@ -25,8 +25,16 @@ def encode_q(q: str) -> str:
     return urllib.parse.quote_plus(q)
 
 def get_shopping_links(keyword: str, gender: str):
-    prefix = gender.lower()
-    q = encode_q(f"{prefix} {keyword}")
+    prefix = ""
+    if gender == "Woman":
+        prefix = "women "
+    elif gender == "Man":
+        prefix = "men "
+    elif gender == "Kid":
+        prefix = "kids "
+
+    q = encode_q(prefix + keyword)
+
     return {
         "Amazon": f"https://www.amazon.in/s?k={q}",
         "Myntra": f"https://www.myntra.com/{q}",
@@ -49,6 +57,76 @@ def detect_skin_tone_from_image(img_file):
         return "Tan"
     else:
         return "Deep"
+
+# ---------------- AI-LIKE JEANS PICKER ----------------
+
+def pick_jeans_ai(gender, body_type, occasion):
+    if gender == "Woman":
+        if body_type == "Pear":
+            return ["High-waist wide jeans", "Straight fit jeans"]
+        if body_type == "Hourglass":
+            return ["Straight fit jeans", "Bootcut jeans"]
+        if body_type == "Rectangle":
+            return ["Wide leg jeans", "Boyfriend jeans"]
+        return ["Relaxed fit jeans", "Straight jeans"]
+
+    if gender == "Man":
+        if body_type == "Athletic":
+            return ["Tapered jeans", "Slim fit jeans"]
+        if body_type == "Broad":
+            return ["Straight fit jeans", "Relaxed fit jeans"]
+        return ["Slim fit jeans", "Regular fit jeans"]
+
+    return ["Comfort fit jeans"]
+
+# ---------------- OUTFIT LOGIC ----------------
+
+def get_tops(occasion, gender):
+    if "Party" in occasion:
+        if gender == "Woman":
+            return [
+                ("Party dress", "party dress"),
+                ("Party wear top", "party top"),
+            ]
+        else:
+            return [
+                ("Party shirt", "party shirt"),
+            ]
+
+    if "Office" in occasion:
+        return [("Formal shirt / blouse", "formal wear")]
+
+    if "Traditional" in occasion:
+        return [("Ethnic outfit", "ethnic wear")]
+
+    return [("Casual top / t-shirt", "casual wear")]
+
+def get_footwear_and_accessories(occasion, age):
+    if age == "Newborn (0–1)":
+        return [
+            ("Baby booties", "newborn socks"),
+            ("Baby cap", "newborn cap"),
+        ]
+
+    if "Office" in occasion:
+        return [
+            ("Formal shoes", "formal shoes"),
+            ("Office bag", "office bag"),
+            ("Watch", "watch"),
+        ]
+
+    if "Party" in occasion:
+        return [
+            ("Stylish footwear", "party footwear"),
+            ("Clutch / sling bag", "party bag"),
+            ("Jewellery / watch", "party accessories"),
+        ]
+
+    return [
+        ("Casual footwear", "casual shoes"),
+        ("Backpack / handbag", "fashion bag"),
+        ("Sunglasses / watch", "fashion accessories"),
+    ]
 
 # ---------------- UI ----------------
 
@@ -76,18 +154,20 @@ st.markdown("## 🧍 Body Type")
 
 if age == "Newborn (0–1)":
     body_type = "Newborn"
-    st.info("👶 Body type is skipped for newborns.")
+    st.info("👶 Body type skipped for newborns.")
 else:
     if gender == "Woman":
         body_type = st.selectbox(
             "Select body type",
-            ["Pear", "Apple", "Hourglass", "Rectangle", "Inverted Triangle"]
+            ["Pear", "Apple", "Hourglass", "Rectangle"]
         )
-    else:
+    elif gender == "Man":
         body_type = st.selectbox(
             "Select body type",
-            ["Slim", "Athletic", "Average", "Stocky"]
+            ["Athletic", "Broad", "Rectangle"]
         )
+    else:
+        body_type = "Child"
 
 # ---------------- SKIN TONE ----------------
 
@@ -95,7 +175,7 @@ st.markdown("## 🎨 Skin Tone")
 skin_mode = st.radio("Skin tone input", ["Upload photo", "Manual select"])
 
 if skin_mode == "Upload photo":
-    skin_img = st.file_uploader("Upload face/hand image", ["jpg", "png"])
+    skin_img = st.file_uploader("Upload face or hand image", ["jpg", "png"])
     if skin_img:
         skin_tone = detect_skin_tone_from_image(skin_img)
         st.success(f"Detected skin tone: {skin_tone}")
@@ -107,86 +187,36 @@ else:
         ["Light", "Medium", "Tan", "Deep"]
     )
 
-# ---------------- RECOMMENDATION LOGIC ----------------
-
-def get_clothing(gender, occasion, age):
-    if age == "Newborn (0–1)":
-        return [("Cotton onesie", "newborn cotton onesie")]
-
-    if gender == "Woman":
-        if "Office" in occasion:
-            return [("Formal blouse", "formal blouse")]
-        if "Traditional" in occasion:
-            return [("Ethnic kurti / saree", "ethnic wear")]
-        return [("Casual top", "women casual top")]
-
-    if gender == "Man":
-        if "Office" in occasion:
-            return [("Formal shirt", "formal shirt")]
-        if "Traditional" in occasion:
-            return [("Kurta set", "men kurta")]
-        return [("Casual t-shirt", "men casual t-shirt")]
-
-    return [("Kids top", "kids top")]
-
-def get_bottoms(gender, occasion):
-    if gender == "Woman":
-        return [
-            ("Straight jeans", "straight jeans women"),
-            ("Wide-leg jeans", "wide leg jeans women"),
-            ("Bootcut jeans", "bootcut jeans women"),
-            ("High-waist trousers", "women trousers"),
-        ]
-
-    if gender == "Man":
-        return [
-            ("Slim-fit jeans", "men slim jeans"),
-            ("Regular trousers", "men trousers"),
-            ("Chinos", "men chinos"),
-        ]
-
-    return [("Kids bottoms", "kids bottoms")]
-
-def get_footwear_and_accessories(gender, occasion, age):
-    if age == "Newborn (0–1)":
-        return [
-            ("Soft booties", "newborn booties"),
-            ("Cotton cap", "newborn cap"),
-        ]
-
-    items = []
-
-    if "Office" in occasion:
-        items += [("Formal shoes", "formal shoes")]
-    else:
-        items += [("Sneakers / heels", "fashion footwear")]
-
-    items += [
-        ("Handbag / backpack", "fashion bag"),
-        ("Watch / jewellery", "fashion accessories"),
-    ]
-
-    return items
-
 # ---------------- TOP PICK ----------------
 
-st.markdown("## ✨ StyleMate’s Top Picks For You")
+st.markdown("## ✨ StyleMate’s AI Picks for You")
 
-sections = {
-    "👚 Tops": get_clothing(gender, occasion, age),
-    "👖 Bottoms": get_bottoms(gender, occasion),
-    "👟 Footwear & Accessories": get_footwear_and_accessories(gender, occasion, age),
-}
+st.info(
+    f"Based on **{occasion.lower()}**, **{gender.lower()}**, "
+    f"**{body_type.lower()} body type**, and **{skin_tone.lower()} skin tone**."
+)
 
-for section, items in sections.items():
-    st.subheader(section)
-    for label, key in items:
-        st.markdown(f"**• {label}**")
-        links = get_shopping_links(key, gender)
-        cols = st.columns(len(links))
-        for col, brand in zip(cols, links):
-            col.link_button(brand, links[brand])
+items = []
+
+# Tops
+items.extend(get_tops(occasion, gender))
+
+# Jeans (2–3 max)
+jeans_list = pick_jeans_ai(gender, body_type, occasion)
+for j in jeans_list:
+    items.append(("AI-selected jeans", j))
+
+# Footwear & accessories
+items.extend(get_footwear_and_accessories(occasion, age))
+
+# ---------------- DISPLAY ----------------
+
+for label, key in items:
+    st.markdown(f"**• {label}**")
+    links = get_shopping_links(key, gender)
+    cols = st.columns(len(links))
+    for col, brand in zip(cols, links):
+        col.link_button(brand, links[brand])
 
 st.markdown("---")
-st.caption("StyleMate – Academic MVP (Rule-based AI Styling Prototype)")
-
+st.caption("StyleMate – Rule-based AI Fashion Recommendation MVP")
