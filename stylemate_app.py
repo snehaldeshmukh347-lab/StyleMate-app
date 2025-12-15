@@ -162,7 +162,7 @@ else:
     if gender == "Woman":
         body_type = st.selectbox(
             "Select body type",
-            ["Pear", "Apple", "Hourglass", "Rectangle"]
+            ["Pear", "Apple", "Hourglass", "Rectangle", " Inverted triangle"]
         )
     elif gender == "Man":
         body_type = st.selectbox(
@@ -223,6 +223,7 @@ for label, key in items:
 
 st.markdown("---")
 st.caption("StyleMate – Rule-based AI Fashion Recommendation MVP")
+
 
 
 
