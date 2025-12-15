@@ -2,10 +2,8 @@ import streamlit as st
 from PIL import Image
 import numpy as np
 import urllib.parse
-import os
 import warnings
 
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 warnings.filterwarnings("ignore")
 
 # ---------------- PAGE CONFIG ----------------
@@ -63,53 +61,9 @@ def detect_skin_tone_from_image(img_file):
     else:
         return "Deep"
 
-def calculate_body_type(chest, waist, hips):
-    if hips / waist > 1.15:
-        return "Pear"
-    elif chest / waist > 1.15:
-        return "Inverted Triangle"
-    elif abs(chest - hips) <= 5:
-        return "Hourglass"
-    elif waist > (chest + hips) * 0.45:
-        return "Apple"
-    else:
-        return "Rectangle"
-
-# ---------------- RECOMMENDATION LOGIC ----------------
-
-def get_outfit_ideas(occasion, age):
-    if age == "Newborn (0–1)":
-        return [("Cotton onesie", "newborn cotton onesie")]
-
-    if "Office" in occasion:
-        return [("Formal shirt / blouse", "formal wear")]
-    if "Traditional" in occasion:
-        return [("Ethnic wear set", "ethnic wear")]
-    return [("Casual top / t-shirt", "casual top")]
-
-def get_extras(occasion, age):
-    if age == "Newborn (0–1)":
-        return [
-            ("Soft baby booties", "newborn socks"),
-            ("Cotton cap", "newborn cap"),
-        ]
-
-    if "Office" in occasion:
-        return [
-            ("Formal shoes", "formal shoes"),
-            ("Minimal office bag", "office bag"),
-        ]
-
-    return [
-        ("Sneakers / heels", "trendy footwear"),
-        ("Sling bag", "fashion bag"),
-    ]
-
 # ---------------- UI ----------------
 
 st.markdown("## 🎯 Occasion")
-st.divider()
-
 occasion = st.selectbox(
     "Select occasion",
     [
@@ -121,8 +75,6 @@ occasion = st.selectbox(
 )
 
 st.markdown("## 👤 User Profile")
-st.divider()
-
 gender = st.selectbox("Gender", ["Woman", "Man", "Kid"])
 age = st.selectbox(
     "Age group",
@@ -132,9 +84,6 @@ age = st.selectbox(
 # ---------------- BODY TYPE ----------------
 
 st.markdown("## 🧍 Body Type")
-st.divider()
-
-body_type = None
 
 if age == "Newborn (0–1)":
     body_type = "Newborn"
@@ -144,74 +93,74 @@ else:
 
     if mode == "Upload photo":
         img = st.file_uploader("Upload full body image", ["jpg", "png", "jpeg"])
-
         if img:
             st.image(img, caption="Uploaded image", use_column_width=True)
 
-            body_type = st.selectbox(
-                "Select your body type",
-                ["Pear", "Apple", "Hourglass", "Rectangle", "Inverted Triangle"]
-            )
-            st.success(f"Selected body type: {body_type}")
-        else:
-            st.warning("Please upload a full body image.")
+    body_type = st.selectbox(
+        "Select your body type",
+        ["Pear", "Apple", "Hourglass", "Rectangle", "Inverted Triangle"]
+    )
 
-    else:
-        chest = st.number_input("Chest (cm)", 20, 150, 90)
-        waist = st.number_input("Waist (cm)", 20, 150, 70)
-        hips = st.number_input("Hips (cm)", 20, 160, 95)
-
-        body_type = calculate_body_type(chest, waist, hips)
-        st.success(f"Detected body type: {body_type}")
-
-if body_type is None:
-    st.warning("Please complete body type input to continue.")
-    st.stop()
+    st.success(f"Selected body type: {body_type}")
 
 # ---------------- SKIN TONE ----------------
 
 st.markdown("## 🎨 Skin Tone")
-st.divider()
-
 skin_mode = st.radio("Skin tone input", ["Upload photo", "Manual select"])
-skin_tone = None
 
 if skin_mode == "Upload photo":
-    skin_img = st.file_uploader("Upload face or hand image", ["jpg", "png"])
+    skin_img = st.file_uploader(
+        "Upload face or hand image",
+        ["jpg", "png"],
+        key="skin"
+    )
     if skin_img:
         skin_tone = detect_skin_tone_from_image(skin_img)
         st.success(f"Detected skin tone: {skin_tone}")
+    else:
+        st.stop()
 else:
     skin_tone = st.selectbox(
         "Select skin tone",
         ["Light", "Medium", "Tan", "Deep"]
     )
 
-if skin_tone is None:
-    st.warning("Please complete skin tone input to continue.")
-    st.stop()
+# ---------------- RECOMMENDATION LOGIC ----------------
+
+def get_outfit_ideas(occasion, age):
+    if age == "Newborn (0–1)":
+        return [("Cotton onesie", "newborn cotton onesie")]
+
+    if "Office" in occasion:
+        return [("Formal outfit", "formal wear")]
+    if "Traditional" in occasion:
+        return [("Ethnic wear", "ethnic wear")]
+    return [("Casual top / t-shirt", "casual top")]
+
+def get_extras(occasion, age):
+    if age == "Newborn (0–1)":
+        return [("Baby booties", "newborn socks")]
+
+    if "Office" in occasion:
+        return [("Formal shoes", "formal shoes")]
+
+    return [
+        ("Sneakers / heels", "fashion footwear"),
+        ("Sling bag", "fashion bag"),
+    ]
 
 # ---------------- TOP PICK ----------------
 
 st.markdown("## ✨ StyleMate’s Top Pick for You")
-st.divider()
-
-st.info(
-    f"Selected based on **{occasion.lower()}**, "
-    f"**{age.lower()}**, and **{skin_tone.lower()} skin tone**."
-)
 
 items = get_outfit_ideas(occasion, age) + get_extras(occasion, age)
 
 for label, key in items:
     st.markdown(f"**• {label}**")
     links = get_shopping_links(key, gender)
-    cols = st.columns(5)
+    cols = st.columns(len(links))
     for col, brand in zip(cols, links):
         col.link_button(brand, links[brand])
 
 st.markdown("---")
-st.caption(
-    "StyleMate is an academic prototype demonstrating rule-based "
-    "fashion recommendation logic."
-)
+st.caption("StyleMate – Academic MVP prototype")
