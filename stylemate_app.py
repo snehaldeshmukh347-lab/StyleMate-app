@@ -87,6 +87,7 @@ def get_tops(occasion, gender):
             return [
                 ("Party dress", "party dress"),
                 ("Party wear top", "party top"),
+                ("Skirt", "women party skirt"),
             ]
         else:
             return [
@@ -220,3 +221,4 @@ for label, key in items:
 
 st.markdown("---")
 st.caption("StyleMate – Rule-based AI Fashion Recommendation MVP")
+
