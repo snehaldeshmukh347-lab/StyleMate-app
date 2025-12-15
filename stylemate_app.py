@@ -164,3 +164,4 @@ for label, key in items:
 
 st.markdown("---")
 st.caption("StyleMate – Academic MVP prototype")
+
