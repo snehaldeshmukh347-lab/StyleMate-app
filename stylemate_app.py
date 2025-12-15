@@ -4,7 +4,6 @@ import numpy as np
 import urllib.parse
 import os
 import warnings
-import mediapipe as mp
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 warnings.filterwarnings("ignore")
@@ -22,7 +21,6 @@ st.write(
     "**body type, gender, age, skin tone and occasion**."
 )
 
-mp_pose = mp.solutions.pose
 # ---------------- HELPER FUNCTIONS ----------------
 
 def encode_q(q: str) -> str:
@@ -65,34 +63,15 @@ def detect_skin_tone_from_image(img_file):
     else:
         return "Deep"
 
-def detect_body_type_from_photo(img):
-    img = Image.open(img).convert("RGB")
-    img_np = np.array(img)
-
-    with mp_pose.Pose(static_image_mode=True) as pose:
-        results = pose.process(img_np)
-
-        if not results.pose_landmarks:
-            return "Average"
-
-        landmarks = results.pose_landmarks.landmark
-
-        shoulder_width = abs(
-            landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER].x -
-            landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER].x
+if mode == "Upload photo":
+    img = st.file_uploader("Upload full body image", ["jpg", "png", "jpeg"])
+    if img:
+        st.image(img, caption="Uploaded image", use_column_width=True)
+        body_type = st.selectbox(
+            "Select your body type",
+            ["Pear", "Apple", "Hourglass", "Rectangle", "Inverted Triangle"]
         )
 
-        hip_width = abs(
-            landmarks[mp_pose.PoseLandmark.LEFT_HIP].x -
-            landmarks[mp_pose.PoseLandmark.RIGHT_HIP].x
-        )
-
-        if shoulder_width > hip_width:
-            return "Inverted Triangle"
-        elif hip_width > shoulder_width:
-            return "Pear"
-        else:
-            return "Rectangle"
 
 
 def calculate_body_type(chest, waist, hips):
@@ -242,6 +221,7 @@ st.caption(
     "StyleMate is an academic prototype demonstrating rule-based AI "
     "fashion recommendation logic."
 )
+
 
 
 
