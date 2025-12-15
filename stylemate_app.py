@@ -69,7 +69,8 @@ def pick_jeans_ai(gender, body_type, occasion):
         if body_type == "Rectangle":
             return ["Wide leg jeans", "Boyfriend jeans"]
         return ["Relaxed fit jeans", "Straight jeans"]
-
+        if body_type == "inverted triangle":
+            return ["Wide leg jeans", "Straight fit jeans", "Bootcut jeans"]
     if gender == "Man":
         if body_type == "Athletic":
             return ["Tapered jeans", "Slim fit jeans"]
@@ -81,25 +82,36 @@ def pick_jeans_ai(gender, body_type, occasion):
 
 # ---------------- OUTFIT LOGIC ----------------
 
-def get_tops(occasion, gender):
+def get_tops(occasion, gender, age):
+    items = []
+
     if "Party" in occasion:
         if gender == "Woman":
-            return [
-                ("Party dress", "party dress"),
-                ("Party wear top", "party top"),
-            ]
+            # Dresses are allowed for teen & adult
+            if age in ["Teen", "Adult"]:
+                items.append(("Party dress", "party dress"))
+                items.append(("Skirt", "party skirt"))
+                items.append(("Fancy party top", "party wear top"))
+            else:
+                # Child / Newborn
+                items.append(("Party frock", "kids party dress"))
+
+        elif gender == "Man":
+            items.append(("Party shirt", "party shirt"))
+            items.append(("Stylish party t-shirt", "men party t-shirt"))
+
+        else:  # Kid
+            items.append(("Kids party wear", "kids party dress"))
+
+    else:  # Casual / Office / Traditional
+        if gender == "Woman":
+            items.append(("Casual top", "women top"))
+        elif gender == "Man":
+            items.append(("Shirt", "men shirt"))
         else:
-            return [
-                ("Party shirt", "party shirt"),
-            ]
+            items.append(("Kids wear", "kids clothing"))
 
-    if "Office" in occasion:
-        return [("Formal shirt / blouse", "formal wear")]
-
-    if "Traditional" in occasion:
-        return [("Ethnic outfit", "ethnic wear")]
-
-    return [("Casual top / t-shirt", "casual wear")]
+    return items
 
 def get_footwear_and_accessories(occasion, age):
     if age == "Newborn (0–1)":
@@ -220,3 +232,4 @@ for label, key in items:
 
 st.markdown("---")
 st.caption("StyleMate – Rule-based AI Fashion Recommendation MVP")
+
