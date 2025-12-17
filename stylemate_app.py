@@ -54,11 +54,11 @@ def detect_skin_tone_from_image(img_file):
     elif brightness > 140:
         return "Medium"
     elif brightness > 90:
-        return "Dark"
+        return "Tan"
     else:
         return "Deep"
 
-# ---------------- AI-LIKE JEANS PICKER ----------------
+# ---------------- JEANS AI (UNCHANGED) ----------------
 
 def pick_jeans_ai(gender, body_type):
     if gender == "Woman":
@@ -89,24 +89,26 @@ def pick_jeans_ai(gender, body_type):
 
 # ---------------- OUTFIT LOGIC ----------------
 
-def get_tops(occasion, gender):
-    if "Party" in occasion:
-        if gender == "Woman":
-            return [
-                ("Party dress", "party dress"),
-                ("Party wear top", "party top"),
-                ("Skirt", "women party skirt"),
-            ]
-        else:
-            return [("Party shirt", "party shirt")]
+def get_tops(occasion):
+    if occasion == "Party / Night out":
+        return [("Party outfit", "party wear outfit")]
 
-    if "Office" in occasion:
-        return [("Formal shirt / blouse", "formal wear")]
+    if occasion == "Office / Formal":
+        return [("Formal outfit", "formal wear outfit")]
 
-    if "Traditional" in occasion:
-        return [("Ethnic outfit", "ethnic wear")]
+    if occasion == "Traditional / Festival / Wedding":
+        return [("Ethnic outfit", "ethnic wear outfit")]
 
-    return [("Casual top / t-shirt", "casual wear")]
+    if occasion == "College Wear":
+        return [("College outfit", "college outfit fashion")]
+
+    if occasion == "Beach Wear":
+        return [("Beach outfit", "beach wear outfit")]
+
+    if occasion == "Gym Wear":
+        return [("Gym outfit", "gym wear outfit")]
+
+    return [("Casual outfit", "casual outfit fashion")]
 
 def get_footwear_and_accessories(occasion, age):
     if age == "Newborn (0–1)":
@@ -115,24 +117,38 @@ def get_footwear_and_accessories(occasion, age):
             ("Baby cap", "newborn cap"),
         ]
 
-    if "Office" in occasion:
+    if occasion == "Office / Formal":
         return [
             ("Formal shoes", "formal shoes"),
             ("Office bag", "office bag"),
             ("Watch", "watch"),
         ]
 
-    if "Party" in occasion:
+    if occasion == "Party / Night out":
         return [
             ("Stylish footwear", "party footwear"),
             ("Clutch / sling bag", "party bag"),
-            ("Jewellery / watch", "party accessories"),
+            ("Accessories", "party accessories"),
+        ]
+
+    if occasion == "Gym Wear":
+        return [
+            ("Training shoes", "gym shoes"),
+            ("Gym bag", "gym bag"),
+            ("Smartwatch", "fitness watch"),
+        ]
+
+    if occasion == "Beach Wear":
+        return [
+            ("Flip flops", "beach footwear"),
+            ("Sunglasses", "sunglasses"),
+            ("Beach bag", "beach bag"),
         ]
 
     return [
         ("Casual footwear", "casual shoes"),
         ("Backpack / handbag", "fashion bag"),
-        ("Sunglasses / watch", "fashion accessories"),
+        ("Accessories", "fashion accessories"),
     ]
 
 # ---------------- UI ----------------
@@ -142,8 +158,11 @@ occasion = st.selectbox(
     "Select occasion",
     [
         "Casual outing",
+        "College Wear",
         "Office / Formal",
         "Party / Night out",
+        "Beach Wear",
+        "Gym Wear",
         "Traditional / Festival / Wedding",
     ],
 )
@@ -155,7 +174,7 @@ age = st.selectbox(
     ["Newborn (0–1)", "Child (2–12)", "Teen", "Adult", "Senior"]
 )
 
-# ---------------- BODY TYPE ----------------
+# ---------------- BODY TYPE (UNCHANGED) ----------------
 
 st.markdown("## 🧍 Body Type")
 
@@ -194,27 +213,26 @@ else:
         ["Light", "Medium", "Tan", "Deep"]
     )
 
-# ---------------- TOP PICKS ----------------
+# ---------------- FINAL AI PICKS ----------------
 
 st.markdown("## ✨ StyleMate’s AI Picks for You")
-st.info(
-    f"Based on **{occasion.lower()}**, **{gender.lower()}**, "
-    f"**{body_type.lower()} body type**, and **{skin_tone.lower()} skin tone**."
-)
 
 items = []
-items.extend(get_tops(occasion, gender))
 
+# Outfit
+items.extend(get_tops(occasion))
+
+# Jeans (ONLY ONCE)
 jeans_list = pick_jeans_ai(gender, body_type)
-for j in jeans_list:
-    items.append(("Jeans", j))
+items.append(("AI Selected Jeans", ", ".join(jeans_list)))
 
+# Footwear & Accessories
 items.extend(get_footwear_and_accessories(occasion, age))
 
 # ---------------- DISPLAY ----------------
 
 for label, key in items:
-    st.markdown(f"**• {label}**")
+    st.markdown(f"### {label}")
     links = get_shopping_links(key, gender)
     cols = st.columns(len(links))
     for col, brand in zip(cols, links):
