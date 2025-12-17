@@ -63,22 +63,27 @@ def detect_skin_tone_from_image(img_file):
 def pick_jeans_ai(gender, body_type, occasion):
     if gender == "Woman":
         if body_type == "Pear":
-            return ["High-waist wide jeans", "Straight fit jeans"]
+            return ["High-waist wide jeans", "Straight fit jeans", "Boyfriend jeans"]
+        if body_type == "Apple":
+            return ["Mid-rise straight jeans", "Bootcut jeans"]
         if body_type == "Hourglass":
-            return ["Straight fit jeans", "Bootcut jeans"]
+            return ["Straight fit jeans", "High-waist flare jeans"]
         if body_type == "Rectangle":
-            return ["Wide leg jeans", "Boyfriend jeans"]
+            return ["Wide leg jeans", "Boyfriend jeans", "High-waist flare jeans"]
         return ["Relaxed fit jeans", "Straight jeans"]
         if body_type == "Inverted triangle":
-            return ["Wide leg jeans", "Boyfriend jeans", "Straight fit jeans", "Bootcut jeans"]
+            return ["Wide leg jeans", "Mom jeans", "Straight fit jeans", "Bootcut jeans"]
             
     if gender == "Man":
-        if body_type == "Athletic":
-            return ["Tapered jeans", "Slim fit jeans"]
-        if body_type == "Broad":
+        if body_type == "Slender":
+            return ["Staight jeans", "Slim fit jeans"]
+        if body_type == "Average":
             return ["Straight fit jeans", "Relaxed fit jeans"]
-        return ["Slim fit jeans", "Regular fit jeans"]
-
+        return ["Slim fit jeans", "Regular fit jeans", "Regular fit jeans"]
+        if body_type == "Athletic":
+            return ["Staight jeans", "Wide leg jeans"]
+        if body_type == "Oval":
+            return ["Staight jeans", "Regular fit jeans"]
     return ["Comfort fit jeans"]
 
 # ---------------- OUTFIT LOGIC ----------------
@@ -223,6 +228,7 @@ for label, key in items:
 
 st.markdown("---")
 st.caption("StyleMate – Rule-based AI Fashion Recommendation MVP")
+
 
 
 
