@@ -50,13 +50,13 @@ def detect_skin_tone_from_image(img_file):
     brightness = (r + g + b) / 3
 
     if brightness > 200:
-        return "Cool"
+        return "Light"
     elif brightness > 140:
-        return "Neutral"
+        return "Medium"
     elif brightness > 90:
-        return "Warm"
-    elif brightness > 50:
         return "Dark"
+    elif brightness > 50:
+        return "Deep"
 
 # ---------------- AI-LIKE JEANS PICKER ----------------
 
