@@ -56,7 +56,7 @@ def detect_skin_tone_from_image(img_file):
     elif brightness > 90:
         return "Tan"
     else:
-        elif brightness > 50:
+    elif brightness > 50:
         return "Deep"
 
 # ---------------- AI-LIKE JEANS PICKER ----------------
@@ -224,6 +224,7 @@ for label, key in items:
 
 st.markdown("---")
 st.caption("StyleMate – Rule-based AI Fashion Recommendation MVP")
+
 
 
 
