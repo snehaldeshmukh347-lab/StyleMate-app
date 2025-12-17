@@ -54,14 +54,13 @@ def detect_skin_tone_from_image(img_file):
     elif brightness > 140:
         return "Medium"
     elif brightness > 90:
-        return "Tan"
+        return "Dark"
     else:
         return "Deep"
 
-# ---------------- AI-LIKE JEANS PICKER (UNCHANGED) ----------------
-# (your jeans logic stays exactly as you wrote it)
+# ---------------- AI-LIKE JEANS PICKER ----------------
 
-def pick_jeans_ai(gender, body_type, occasion):
+def pick_jeans_ai(gender, body_type):
     if gender == "Woman":
         if body_type == "Pear":
             return ["High-waist wide jeans", "Straight fit jeans", "Boyfriend jeans"]
@@ -81,114 +80,33 @@ def pick_jeans_ai(gender, body_type, occasion):
         if body_type == "Broad":
             return ["Straight fit jeans", "Relaxed fit jeans"]
         if body_type == "Athletic":
-            return ["Straight jeans", "Regular fit jeans"]
+            return ["Straight jeans", "Tapered jeans"]
         if body_type == "Oval":
-            return ["Regular fit jeans", "Relaxed fit jeans"]
+            return ["Regular fit jeans", "Straight jeans"]
         return ["Regular fit jeans"]
 
     return ["Comfort fit jeans"]
 
-# ---------------- TOPS LOGIC (NEW & IMPROVED) ----------------
+# ---------------- OUTFIT LOGIC ----------------
 
 def get_tops(occasion, gender):
-    if gender == "Woman":
-
-        # ---------- PARTY ----------
-        if "Party" in occasion:
+    if "Party" in occasion:
+        if gender == "Woman":
             return [
-                ("Fancy party top", "women party top"),
-                ("Mini skirt", "women mini skirt"),
-                ("Midi skirt", "women midi skirt"),
-                ("Maxi skirt", "women maxi skirt"),
-                ("Bodycon skirt", "women bodycon skirt"),
-                ("Pleated skirt", "women pleated skirt"),
-                ("Bodycon dress", "women bodycon dress"),
-                ("Mini party dress", "women mini party dress"),
-                ("Midi party dress", "women midi party dress"),
-                ("Off shoulder dress", "women off shoulder dress"),
+                ("Party dress", "party dress"),
+                ("Party wear top", "party top"),
+                ("Skirt", "women party skirt"),
             ]
+        else:
+            return [("Party shirt", "party shirt")]
 
-        # ---------- OFFICE ----------
-        if "Office" in occasion:
-            return [
-                ("Formal blouse", "women formal blouse"),
-                ("Office shirt", "women formal shirt"),
-            ]
+    if "Office" in occasion:
+        return [("Formal shirt / blouse", "formal wear")]
 
-        # ---------- TRADITIONAL ----------
-        if "Traditional" in occasion:
-            return [
-                ("Ethnic kurti", "women kurti"),
-            ]
+    if "Traditional" in occasion:
+        return [("Ethnic outfit", "ethnic wear")]
 
-        # ---------- COLLEGE ----------
-        if "College" in occasion:
-            return [
-                ("Trendy top", "women trendy top"),
-                ("Oversized t-shirt", "women oversized t-shirt"),
-                ("Short kurti", "women short kurti"),
-                ("Casual shirt", "women casual shirt"),
-            ]
-
-        # ---------- BEACH ----------
-        if "Beach" in occasion:
-            return [
-                ("Crop top", "women crop top"),
-                ("Breezy shirt", "women beach shirt"),
-                ("Maxi beach dress", "women maxi beach dress"),
-                ("Slip dress", "women slip dress"),
-                ("Wrap dress", "women wrap dress"),
-                ("Light bodycon dress", "women summer bodycon dress"),
-            ]
-
-        # ---------- GYM ----------
-        if "Gym" in occasion:
-            return [
-                ("Sports bra", "women sports bra"),
-                ("Workout t-shirt", "women gym t-shirt"),
-                ("Tank top", "women gym tank top"),
-            ]
-
-        # ---------- CASUAL ----------
-        return [
-            ("Casual top", "women casual top"),
-            ("T-shirt", "women t-shirt"),
-            ("Kurti", "women kurti"),
-            ("Short kurti", "women short kurti"),
-        ]
-
-    # ---------------- MEN (UNCHANGED) ----------------
-    if gender == "Man":
-        if "Party" in occasion:
-            return [("Party shirt", "men party shirt")]
-        if "Office" in occasion:
-            return [("Formal shirt", "men formal shirt")]
-        if "Traditional" in occasion:
-            return [("Ethnic kurta", "men kurta")]
-        if "College" in occasion:
-            return [
-                ("Oversized t-shirt", "men oversized t-shirt"),
-                ("Casual shirt", "men casual shirt"),
-            ]
-        if "Beach" in occasion:
-            return [
-                ("Printed shirt", "men beach shirt"),
-                ("Tank vest", "men tank vest"),
-            ]
-        if "Gym" in occasion:
-            return [
-                ("Gym t-shirt", "men gym t-shirt"),
-                ("Sleeveless vest", "men gym vest"),
-            ]
-        return [
-            ("Casual t-shirt", "men t-shirt"),
-            ("Casual shirt", "men casual shirt"),
-        ]
-
-    return []
-
-
-# ---------------- FOOTWEAR & ACCESSORIES (UNCHANGED) ----------------
+    return [("Casual top / t-shirt", "casual wear")]
 
 def get_footwear_and_accessories(occasion, age):
     if age == "Newborn (0–1)":
@@ -227,9 +145,6 @@ occasion = st.selectbox(
         "Office / Formal",
         "Party / Night out",
         "Traditional / Festival / Wedding",
-        "College",
-        "Beach look",
-        "Gym wear",
     ],
 )
 
@@ -264,26 +179,36 @@ else:
 # ---------------- SKIN TONE ----------------
 
 st.markdown("## 🎨 Skin Tone")
-skin_tone = st.selectbox(
-    "Select skin tone",
-    ["Light", "Medium", "Tan", "Deep"]
-)
+skin_mode = st.radio("Skin tone input", ["Upload photo", "Manual select"])
 
-# ---------------- TOP PICK ----------------
+if skin_mode == "Upload photo":
+    skin_img = st.file_uploader("Upload face or hand image", ["jpg", "png"])
+    if skin_img:
+        skin_tone = detect_skin_tone_from_image(skin_img)
+        st.success(f"Detected skin tone: {skin_tone}")
+    else:
+        st.stop()
+else:
+    skin_tone = st.selectbox(
+        "Select skin tone",
+        ["Light", "Medium", "Tan", "Deep"]
+    )
+
+# ---------------- TOP PICKS ----------------
 
 st.markdown("## ✨ StyleMate’s AI Picks for You")
+st.info(
+    f"Based on **{occasion.lower()}**, **{gender.lower()}**, "
+    f"**{body_type.lower()} body type**, and **{skin_tone.lower()} skin tone**."
+)
 
 items = []
-
-# Tops
 items.extend(get_tops(occasion, gender))
 
-# Jeans (skip for traditional)
-if "Traditional" not in occasion:
-    for j in pick_jeans_ai(gender, body_type, occasion):
-        items.append(("Jeans", j))
+jeans_list = pick_jeans_ai(gender, body_type)
+for j in jeans_list:
+    items.append(("Jeans", j))
 
-# Footwear & accessories
 items.extend(get_footwear_and_accessories(occasion, age))
 
 # ---------------- DISPLAY ----------------
@@ -296,4 +221,4 @@ for label, key in items:
         col.link_button(brand, links[brand])
 
 st.markdown("---")
-st.caption("StyleMate – Fashion-rule–based AI Recommendation MVP")
+st.caption("StyleMate – Rule-based AI Fashion Recommendation MVP")
