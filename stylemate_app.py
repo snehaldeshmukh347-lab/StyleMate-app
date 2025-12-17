@@ -77,7 +77,7 @@ def pick_jeans_ai(gender, body_type, occasion):
     if gender == "Man":
         if body_type == "Slender":
             return ["Staight jeans", "Slim fit jeans"]
-        if body_type == "Average":
+        if body_type == "Board":
             return ["Straight fit jeans", "Relaxed fit jeans"]
         return ["Slim fit jeans", "Regular fit jeans", "Regular fit jeans"]
         if body_type == "Athletic":
@@ -172,7 +172,7 @@ else:
     elif gender == "Man":
         body_type = st.selectbox(
             "Select body type",
-            ["Athletic", "Broad", "Rectangle"]
+            ["Slender", "Broad", "Athletic", "Oval"]
         )
     else:
         body_type = "Child"
@@ -228,6 +228,7 @@ for label, key in items:
 
 st.markdown("---")
 st.caption("StyleMate – Rule-based AI Fashion Recommendation MVP")
+
 
 
 
