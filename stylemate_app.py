@@ -55,12 +55,12 @@ def detect_skin_tone_from_image(img_file):
         return "Medium"
     elif brightness > 90:
         return "Dark"
-    elif brightness > 50:
+    else:
         return "Deep"
 
 # ---------------- AI-LIKE JEANS PICKER ----------------
 
-def pick_jeans_ai(gender, body_type, occasion):
+def pick_jeans_ai(gender, body_type):
     if gender == "Woman":
         if body_type == "Pear":
             return ["High-waist wide jeans", "Straight fit jeans", "Boyfriend jeans"]
@@ -76,14 +76,14 @@ def pick_jeans_ai(gender, body_type, occasion):
 
     if gender == "Man":
         if body_type == "Slender":
-            return ["Staight jeans", "Slim fit jeans"]
-        if body_type == "Board":
+            return ["Straight jeans", "Slim fit jeans"]
+        if body_type == "Broad":
             return ["Straight fit jeans", "Relaxed fit jeans"]
         if body_type == "Athletic":
-            return ["Staight jeans", "Wide leg jeans"]
+            return ["Straight jeans", "Tapered jeans"]
         if body_type == "Oval":
-            return ["Staight jeans", "Regular fit jeans"]
-        return ["Slim fit jeans", "Regular fit jeans", "Regular fit jeans"]
+            return ["Regular fit jeans", "Straight jeans"]
+        return ["Regular fit jeans"]
 
     return ["Comfort fit jeans"]
 
@@ -166,7 +166,7 @@ else:
     if gender == "Woman":
         body_type = st.selectbox(
             "Select body type",
-            ["Pear", "Apple", "Hourglass", "Rectangle", " Inverted triangle"]
+            ["Pear", "Apple", "Hourglass", "Rectangle", "Inverted triangle"]
         )
     elif gender == "Man":
         body_type = st.selectbox(
@@ -194,26 +194,21 @@ else:
         ["Light", "Medium", "Tan", "Deep"]
     )
 
-# ---------------- TOP PICK ----------------
+# ---------------- TOP PICKS ----------------
 
 st.markdown("## ✨ StyleMate’s AI Picks for You")
-
 st.info(
     f"Based on **{occasion.lower()}**, **{gender.lower()}**, "
     f"**{body_type.lower()} body type**, and **{skin_tone.lower()} skin tone**."
 )
 
 items = []
-
-# Tops
 items.extend(get_tops(occasion, gender))
 
-# Jeans
-jeans_list = pick_jeans_ai(gender, body_type, occasion)
+jeans_list = pick_jeans_ai(gender, body_type)
 for j in jeans_list:
     items.append(("Jeans", j))
 
-# Footwear & accessories
 items.extend(get_footwear_and_accessories(occasion, age))
 
 # ---------------- DISPLAY ----------------
